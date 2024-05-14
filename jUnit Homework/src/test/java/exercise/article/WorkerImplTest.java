@@ -2,6 +2,7 @@ package exercise.article;
 
 import exercise.worker.WorkerImpl;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -29,7 +30,8 @@ class WorkerImplTest {
     }
 
     @Test
-    void getCatalogWithTitlesInAlphabeticalOrder() {
+    @DisplayName("Вывод каталога в алфавитном порядке")
+    public void testGetCatalogWithTitlesInAlphabeticalOrder() {
         List<String> titles = Arrays.asList("Чек", "Алфавитный", "Порядок");
         when(lib.getAllTitles()).thenReturn((List<String>) titles);
         String catalog = worker.getCatalog();
@@ -41,14 +43,16 @@ class WorkerImplTest {
     }
 
     @Test
-    void getCatalogWithoutTitles() {
+    @DisplayName("Вывод пустого каталога")
+    public void testGetCatalogWithoutTitles() {
         String catalog = worker.getCatalog();
         String expectedCatalog = "Список доступных статей:\n";
         assertEquals(expectedCatalog, catalog);
     }
 
     @Test
-    void PrepareArticlesWithCorrectData() {
+    @DisplayName("Подготовка статей с корректными данными")
+    public void testPrepareArticlesWithCorrectData() {
         List<Article> articles = new ArrayList<>();
         articles.add(new Article("Ворона и Лисица", "Басня", "Иван Андреевич Крылов", LocalDate.now()));
         articles.add(new Article("Мартышка и очки", "Басня", "Иван Андреевич Крылов", LocalDate.now()));
@@ -58,7 +62,8 @@ class WorkerImplTest {
     }
 
     @Test
-    void PrepareArticlesWithWrongData() {
+    @DisplayName("Подготовка статей с одним незаполненным обязательным полем")
+    public void testPrepareArticlesWithWrongData() {
         List<Article> articles = new ArrayList<>();
         LocalDate date = null;
         articles.add(new Article("Ворона и Лисица", "", "Иван Андреевич Крылов", LocalDate.now()));
@@ -69,7 +74,8 @@ class WorkerImplTest {
     }
 
     @Test
-    void PrepareArticlesWithCheckForCorrectDate() {
+    @DisplayName("Автоматическое заполнение поля Дата, в случае если это поле было задано как null")
+    public void testPrepareArticlesWithCheckForCorrectDate() {
         List<Article> articles = new ArrayList<>();
         LocalDate date = null;
         articles.add(new Article("Ворона и Лисица", "Басня", "Иван Андреевич Крылов", date));
@@ -82,7 +88,8 @@ class WorkerImplTest {
     }
 
     @Test
-    public void AddNewArticlesWithValidArticles() {
+    @DisplayName("Срабатывание метода store() только при добавлении статей работником")
+    public void testAddNewArticlesWithValidArticles() {
         List<Article> articles = new ArrayList<>();
         articles.add(new Article("Ворона и Лисица", "Басня", "Иван Андреевич Крылов", LocalDate.now()));
         articles.add(new Article("Мартышка и очки", "Басня", "Иван Андреевич Крылов", LocalDate.now()));
@@ -91,20 +98,26 @@ class WorkerImplTest {
     }
 
     @Test
-    public void AddNewArticlesWithNullArticlesAndThrowsException() throws NullPointerException {
-        Throwable thrown = assertThrows(NullPointerException.class, () -> worker.addNewArticles(null));
-        assertNotNull(thrown.getMessage());
+    @DisplayName("Срабатывание исключения, в случае добавления работником вместо статьи, нулевого указателя")
+    public void shouldThrowsExceptionWhenAddNewArticlesWithNull() throws NullPointerException {
+        try {
+            worker.addNewArticles(null);
+        } catch (NullPointerException e) {
+            assertEquals(NullPointerException.class, e.getClass());
+        }
     }
 
     @Test
-    public void AddNewArticlesWithEmptyArticles() {
+    @DisplayName("Отсутствие вызова метода store(), в случае добавления работником пустого списка статей")
+    public void testAddNewArticlesWithEmptyListOfArticles() {
         List<Article> articles = new ArrayList<>();
         worker.addNewArticles(articles);
         Mockito.verify(lib, never()).store(anyInt(), anyList());
     }
 
     @Test
-    public void PreparedNewArticlesWithIdenticalTitles() {
+    @DisplayName("Защита от повторяющихся названий статей в каталоге после работы работника")
+    public void shouldCheckForDuplicateArticleTitles() {
         List<Article> articles = new ArrayList<>();
         articles.add(new Article("Мартышка и очки", "Басня", "Иван Андреевич Крылов", LocalDate.now()));
         articles.add(new Article("Мартышка и очки", "Басня", "Иван Андреевич Крылов", LocalDate.now()));
